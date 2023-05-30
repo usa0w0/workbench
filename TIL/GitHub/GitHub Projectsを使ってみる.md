@@ -12,6 +12,7 @@
 - 複数リポジトリのIssueやPRを連携できる。 → プロジェクトが大きいと便利
 - `Status`を設定することで、フィールド分けできたり、カンバン方式で表示できる。 → 便利！（これが理由で調べた）
 - `Custom fields`による整理ができる。
+<img width="1176" alt="スクリーンショット 2023-05-30 22 59 38" src="https://github.com/usa0w0/workbench/assets/61536640/68192713-3478-41d7-8f13-cd40dd46db32">
 
 ## Projectの作り方
 > Organizationプロジェクトもしくはユーザプロジェクトを作成できます。 Organizationプロジェクトを作成するには、GitHub Organizationが必要。 組織の作成について詳しくは、「新しい Organization をゼロから作成」をご覧ください。
