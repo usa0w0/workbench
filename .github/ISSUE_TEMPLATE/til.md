@@ -1,7 +1,7 @@
 ---
 name: TIL
 about: 気になることを溜めておく
-title: "[TIL] "
+title: ''
 labels: TIL
 assignees: usa0w0
 
