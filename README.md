@@ -1,5 +1,6 @@
 # 概要
-GitHubのProjects機能で、以下の管理を運用してみたい
-- 私生活におけるタスク
-- AIMバイトのタスク
-- 研究の記録・タスク管理
+私の生活に関するいろいろを詰めるリポジトリ
+
+# 内容
+- [TIL（Today I learned）](https://github.com/usa0w0/workbench/tree/main/TIL)
+- [管理ボード](https://github.com/users/usa0w0/projects/5/views/1)
