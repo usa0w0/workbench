@@ -14,7 +14,8 @@ GitHub Actionsでワークフローを作成する。
 
 2. `.github/workflows`内に、ymlファイルを作成し、ワークフローを記述する。
 
-```imjohnbo/issue-bot Actionsの例
+- imjohnbo/issue-bot Actionsの例
+```
 # このワークフローはGitHubによって認定されていないアクションを使用します。
 # それらはサードパーティによって提供され、
 # 別個の利用規約、プライバシーポリシー、
@@ -60,5 +61,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-- `on.schedule`プロパティ：POSIX cron 構文でスケジュールできる。
-  - `- cron: <Minute [0,59]> <Hour [0,23]> <Day of the month [1,31]> <Month of the year [1,12]> <Day of the week ([0,6] with 0=Sunday)>`
+  - `on.schedule`プロパティ：POSIX cron 構文でスケジュールできる。
+    - `- cron: <Minute [0,59]> <Hour [0,23]> <Day of the month [1,31]> <Month of the year [1,12]> <Day of the week ([0,6] with 0=Sunday)>`
+
+- [現在日時を取得するワークフロー](https://qiita.com/itouuuuuuuuu/items/ebf0d4c306b54747374f)
+```
+name: "Get current datetime"
+
+on: [ workflow_dispatch ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set current datetime as env variable
+        env:
+          TZ: 'Asia/Tokyo' # タイムゾーン指定
+        run: echo "CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+
+      - name: Show current datetime
+        run: echo ${{ env.CURRENT_DATETIME }}
+```
+  - どうやら、シェルスクリプトで書かれているみたい
+    - 自分のワークフローには、`$(date -d "+7 days" +"%Y-%m-%d")`と記述して来週の日付にした
+    - `"CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV`でGitHubの環境変数にセット
+    - Issueのタイトルを、`"${{ env.CURRENT_DATETIME }}の会議"`とすることで、日付入りのタイトルが生成できるはず
