@@ -2,7 +2,7 @@
 name: TIL
 about: 気になることを溜めておく
 title: "[TIL] "
-labels: TIL, 連絡
+labels: TIL
 assignees: usa0w0
 
 ---
