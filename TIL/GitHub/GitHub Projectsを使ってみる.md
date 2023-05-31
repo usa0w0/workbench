@@ -123,3 +123,6 @@ PRがmergeされたとき、任意の`Status`に設定する。
 運用方法や`Custom fields`に依るところが多いため、今回は調査せず。
 <img width="1176" alt="スクリーンショット 2023-05-30 22 53 33" src="https://github.com/usa0w0/workbench/assets/61536640/5a0fc688-7009-4efc-a933-f1b8a42324cc">
 <img width="1176" alt="スクリーンショット 2023-05-30 22 54 08" src="https://github.com/usa0w0/workbench/assets/61536640/43e90fe8-472f-477b-85ad-0e8e76752065">
+
+## 参考にしたサイト
+- [GitHub Projects を導入した話 - KAKEHASHI Tech Blog](https://kakehashi-dev.hatenablog.com/entry/2023/02/28/090000)（[Musubi](https://musubi.kakehashi.life)の機能開発チームでスクラム運用にGitHub Projectsを使ったよって話）
