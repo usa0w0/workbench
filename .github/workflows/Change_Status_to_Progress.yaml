@@ -16,6 +16,7 @@ jobs:
         with:
           fields: Status
           github_token: ${{ secrets.SOME_TOKEN }}
+          project_url: https://github.com/users/usa0w0/projects/5
           
       - run: echo ${{ steps.fields.outputs.values }}
       
@@ -23,4 +24,5 @@ jobs:
         with:
           fields: Status
           github_token: ${{ secrets.SOME_TOKEN }}
+          project_url: https://github.com/users/usa0w0/projects/5
           values: "やってる🏃🏻‍♂️"
