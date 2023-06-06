@@ -15,6 +15,6 @@ jobs:
         with:
           # You can target a project in a different organization
           # to the issue
-          project-url: https://github.com/orgs/usa0w0/projects/5
+          project-url: https://github.com/users/usa0w0/projects/5
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
           labeled: High
