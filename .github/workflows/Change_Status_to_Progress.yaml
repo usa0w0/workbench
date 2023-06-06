@@ -1,0 +1,26 @@
+name: Change Status to In Progress
+
+on:
+  issues:
+    types:
+      - assigned
+
+jobs:
+  issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: EndBug/project-fields@v1.0.1
+        id: fields
+        with:
+          fields: Status
+          github_token: ${{ secrets.SOME_TOKEN }}
+          
+      - run: echo ${{ steps.fields.outputs.values }}
+      
+      - uses: EndBug/project-fields@v1.0.1
+        with:
+          fields: Status
+          github_token: ${{ secrets.SOME_TOKEN }}
+          values: "やってる🏃🏻‍♂️"
