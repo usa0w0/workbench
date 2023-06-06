@@ -22,7 +22,7 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
               });
-            console.log(labels);
+            console.log(labels[0].name);
             return labels.includes("High")
       
       - name: Change Fields Value
