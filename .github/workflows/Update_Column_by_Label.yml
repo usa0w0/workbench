@@ -3,38 +3,37 @@ name: Update Projects
 on:
   issues:
     types:
+      - opened
       - labeled
-
-concurrency:
-  group: update-projects-${{ github.event_name }}
-  cancel-in-progress: true
-
-
+      
 jobs:
   issues:
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
-      # substitute RELEASE_VERSION for the latest version available in releases
-      - uses: Machine-Maker/add-to-project-action@v0.2.0
+      - name: Check if label contains High
+        id: check-result
+        uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.SOME_TOKEN }}
-          project-url: https://github.com/users/usa0w0/projects/5/views/1
-          column-field: Status
-          label-to-column-map: |
-            {
-              "High": "やらなきゃ😭"
-            }
-      - uses: Machine-Maker/add-to-project-action@v0.2.0
+          script: |
+            const labels = github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+              });
+            console.log(labels);
+            return labels.includes("High")
+      
+      - name: Change Fields Value
+        if: ${{steps.check-result.outputs.result == 'True'}}
+        uses: EndBug/project-fields@v1.0.1
         with:
-          github-token: ${{ secrets.SOME_TOKEN }}
-          project-url: https://github.com/users/usa0w0/projects/5/views/1
-          column-field: Priority
-          label-to-column-map: |
-            {
-              "High": "High"
-            }
+          fields: Status,Priority
+          github_token: ${{ secrets.SOME_TOKEN }}
+          project_url: https://github.com/users/usa0w0/projects/5
+          values: やらなきゃ😭,High
+      
       - uses: actions/github-script@v6
         with:
           script: |
