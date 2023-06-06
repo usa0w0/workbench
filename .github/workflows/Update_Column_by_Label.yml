@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # substitute RELEASE_VERSION for the latest version available in releases
-      - uses: Machine-Maker/add-to-project-action@RELEASE_VERSION
+      - uses: Machine-Maker/add-to-project-action@v0.2.0
         with:
           github-token: ${{ secrets.SOME_TOKEN }}
-          project-url: <the full url to your project> # e.g. https://github.com/users/Machine-Maker/projects/1/views/1
+          project-url: https://github.com/users/usa0w0/projects/5/views/1
           column-field: Status
           label-to-column-map: |
             {
-              "High": "やらなきゃ"
+              "High": "やらなきゃ😭"
             }
