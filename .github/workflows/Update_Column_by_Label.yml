@@ -3,7 +3,6 @@ name: Update Projects
 on:
   issues:
     types:
-      - opened
       - labeled
       
 jobs:
