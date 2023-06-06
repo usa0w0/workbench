@@ -25,3 +25,12 @@ jobs:
             {
               "High": "やらなきゃ😭"
             }
+      - uses: Machine-Maker/add-to-project-action@v0.2.0
+        with:
+          github-token: ${{ secrets.SOME_TOKEN }}
+          project-url: https://github.com/users/usa0w0/projects/5/views/1
+          column-field: Priority
+          label-to-column-map: |
+            {
+              "High": "High"
+            }
