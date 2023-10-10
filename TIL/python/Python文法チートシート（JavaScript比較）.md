@@ -234,3 +234,22 @@ print( divided(2, 3) )
 print( divided(y=2, x=3) )
 >> 1.5
 ```
+
+
+### Pythonの構成（お作法）
+```
+# ライブラリのインポート
+import numpy as np
+
+# 実行内容を関数宣言
+def function(arg):
+    print('Hello World!)
+
+# 実行箇所
+if __name__ == '__main__':
+    function('hogehoge')
+```
+Pythonのスクリプトは, 他のスクリプトにインポートすることができる. 
+例として示している`numpy`もその一つであり（インストールされたパッケージなので厳密には違うが）, 別ディレクトリにある`numpy.py`から, その機能をインポートしている. 
+おまじないのように書かれた`if __name__ == '__main__'`は, スクリプトが外部からインポートされているのか, そのまま実行されているのかを識別するための処理分岐である. 
+細かいことは[ここ](https://note.nkmk.me/python-if-name-main/)を参照. 
