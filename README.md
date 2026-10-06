@@ -29,7 +29,7 @@ AI に作らせたいもののアイデアハブ。ここには「何を・な�
 
 ## トリアージ
 
-`triage` ラベルを付けると、AI が本文とコメントを読んで区画を最新にまとめ直し、`spec` か `ready` に進めてラベルを外す（`.github/workflows/triage.yml`）。
+`triage` ラベルを付けると、AI が本文とコメントを読んで区画を最新にまとめ直し、`spec` か `ready` に進めてラベルを外す（`.github/workflows/triage.yml`）。何を変えたかの要約と判定の理由は、コメントに残る。
 
 - 「メモで残して」で作った issue には最初から付いている
 - GitHub の画面から自分で issue を作った時は、手で `triage` を付けると走る
