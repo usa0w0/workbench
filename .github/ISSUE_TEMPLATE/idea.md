@@ -2,7 +2,7 @@
 name: 💡 アイデア
 about: 思いつきを投げる。雑でよい
 title: ''
-labels: idea
+labels: idea, triage
 assignees: ''
 ---
 

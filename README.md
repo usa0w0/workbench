@@ -15,6 +15,11 @@ AI に作らせたいもののアイデアハブ。ここには「何を・な�
 | `building` | 実装リポジトリ作成済み、作業中 |
 | `shipped` / `dropped` | 完成 / 見送り（理由を1行残して close） |
 
-`idea` ラベルが付くと、AI が類似 issue と仕様の叩き台をコメントする（`.github/workflows/triage.yml`）。
+## トリアージ
+
+`triage` ラベルを付けると、AI が類似 issue・決めるべきこと・完了条件の叩き台をコメントし、終わるとラベルを外す（`.github/workflows/triage.yml`）。
+
+- アイデア用テンプレートで issue を作ると最初から付いているので、作成直後に1回走る
+- 本文やコメントで内容を足した後にやり直したい時は、`triage` ラベルを付け直す
 
 AI 向けの運用ルールは [CLAUDE.md](CLAUDE.md) を参照。

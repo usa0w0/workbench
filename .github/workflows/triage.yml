@@ -1,4 +1,4 @@
-name: Triage idea
+name: Triage
 
 on:
   issues:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   triage:
-    if: github.event.label.name == 'idea'
+    if: github.event.label.name == 'triage'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -20,7 +20,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh issue view "$ISSUE_NUMBER" --json number,title,body > target.json
+          gh issue view "$ISSUE_NUMBER" --json number,title,body,comments \
+            --jq '{number, title, body, comments: [.comments[] | select(.author.login | startswith("github-actions") | not) | .body]}' > target.json
           gh issue list --state all --limit 300 --json number,title,state,labels \
             --jq "map(select(.number != $ISSUE_NUMBER) | {number, title, state, labels: [.labels[].name]})" > others.json
 
@@ -34,7 +35,7 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           PROMPT: |
-            カレントディレクトリの target.json は新しく投稿されたアイデアの issue、others.json は同じリポジトリの他の全 issue の一覧である。
+            カレントディレクトリの target.json はトリアージ対象のアイデアの issue（comments は後から追記された補足）、others.json は同じリポジトリの他の全 issue の一覧である。
             target.json のアイデアをトリアージし、結果を日本語の Markdown で triage.md に書き出すこと。
 
             triage.md の構成:
@@ -58,3 +59,4 @@ jobs:
         run: |
           test -s triage.md
           gh issue comment "$ISSUE_NUMBER" --body-file triage.md
+          gh issue edit "$ISSUE_NUMBER" --remove-label triage
