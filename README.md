@@ -35,4 +35,4 @@ AI に作らせたいもののアイデアハブ。ここには「何を・な�
 - GitHub の画面から自分で issue を作った時は、手で `triage` を付けると走る
 - コメントで回答した後に反映させたい時も、`triage` を付け直す
 
-AI 向けの運用ルールは [CLAUDE.md](CLAUDE.md) を参照。
+AI 向けの運用ルールは [AGENTS.md](AGENTS.md) を参照。`CLAUDE.md` はそれを読み込むだけのファイル。
