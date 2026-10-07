@@ -27,7 +27,7 @@
 - `ready`: 下の「ready の条件」を満たしている
 - `building`: 実装リポジトリ作成済み、作業中
 
-`triage` は状態ではなく、トリアージ（`.github/workflows/triage.yml`）を走らせる合図。終わると自動で外れる。
+`triage` は状態ではなく、トリアージ（`.github/workflows/triage.yml`）を走らせる合図。終わると自動で外れる。トリアージは、変更点の要約と判定の理由をコメントに残す。
 
 ## issue 本文の形
 
