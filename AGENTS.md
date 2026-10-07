@@ -2,6 +2,12 @@
 
 このリポジトリは issue でアイデアを管理するハブ。コードは置かない。
 
+## セッションの役割
+
+- workbench のセッションは、仕様化・振り分け・issue の状態管理を行う。実装はしない
+- 実装は、対象リポジトリのディレクトリで立てたセッションが行う
+- workbench 自身のファイル（この `AGENTS.md` やワークフローなど）の変更は、workbench のセッションが行う
+
 ## ブランチ運用
 
 `main` と feature ブランチだけで運用する。
@@ -92,9 +98,42 @@
 ## 「#NN を作って」と言われたら
 
 1. `ready` であること、ready の条件を実際に満たしていることを自分で確かめる。満たしていなければ `spec` に戻して質問する
-2. `~/dev/AGENTS.md` の手順で `~/dev/<name>` に新規リポジトリを作り、そこで実装する
-3. 区画の「実装リポジトリ」に URL を記入し、ラベルを `building` にする
-4. 完了条件をすべて満たしたら、その旨と確認方法を issue にコメントする。close と `shipped` はユーザーが行う
+2. 新規に作るものなら、`~/dev/AGENTS.md` の手順で `~/dev/<name>` にリポジトリを作る。既存リポジトリへの追加作業なら、そのディレクトリを使う
+3. 下の「実装セッションの立て方」で、そのディレクトリにセッションを立てる
+4. 区画の「実装リポジトリ」に URL を記入し、ラベルを `building` にする
+5. 立てたセッションにメッセージを送り、依頼を引き継ぐ。内容は「workbench の issue #NN を実装して」と、issue の読み方（`gh issue view NN -R usa0w0/workbench --comments`）
+6. 相手から受け取った旨の返信が来たことを確かめ、セッション名をユーザーに伝える。以後のやり取りは、ユーザーがアプリからそのセッションを開いて行う
+
+実装セッションは、完了条件をすべて満たしたら、その旨と確認方法を issue にコメントする。close と `shipped` はユーザーが行う。
+
+## 実装セッションの立て方
+
+「〇〇でセッションを立てて」と言われた時も同じ手順で行う。
+
+1. `tmux ls` と稼働中のプロセスを見て、同じ名前・同じディレクトリのセッションがすでにないか確かめる。あれば立てずに、その旨を伝える
+2. サンドボックスの外で、環境変数を引き継がずに起動する
+
+```
+env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh LANG=ja_JP.UTF-8 TERM=xterm-256color \
+  PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+  tmux new-session -d -s <name> -c "$HOME/dev/<name>" \
+  'while true; do claude remote-control --name <name> --permission-mode acceptEdits --spawn=same-dir; sleep 10; done'
+```
+
+3. 初めてのディレクトリでは、信頼確認（`Trust <ディレクトリ>? [y/N]`）で止まる。`tmux capture-pane -p -t <name>` で画面を確かめ、下の条件を満たす時だけ `tmux send-keys -t <name> y Enter` で答える
+4. `tmux capture-pane -p -t <name>` で `Connected` になり、セッション名が表示されたことを確かめてから報告する
+
+信頼確認に答えてよい条件:
+
+- この流れの中で、workbench のセッション自身が作ったばかりのディレクトリであること
+- 既存のディレクトリや、中身を他所から持ってきたディレクトリ（clone したものなど）では答えない。ユーザーに `tmux attach -t <name>` で答えてもらう
+
+注意:
+
+- 稼働中のセッションは、頼まれない限り止めない
+- メッセージの送信が成功しても、相手が読んだとは限らない。相手の権限モードによっては、ユーザーの承認待ちで保留される。返信が来ない時は、その旨をユーザーに伝える
+- 止めた直後に同じディレクトリで立て直すと、数分のあいだ「already served」で弾かれる。再試行ループがあるので待てば立ち上がる
+- 起動のたびに `Session failed` が出て一覧に現れない時は、サーバー側で終了済みのセッションを復元しようとしている。`~/.claude/projects/<ディレクトリ名>/bridge-pointer.json` を退避して立て直す
 
 ## close する時
 
