@@ -117,10 +117,16 @@
 env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh LANG=ja_JP.UTF-8 TERM=xterm-256color \
   PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
   tmux new-session -d -s <name> -c "$HOME/dev/<name>" \
-  'while true; do claude remote-control --name <name> --permission-mode acceptEdits; sleep 10; done'
+  'while true; do claude remote-control --name <name> --permission-mode acceptEdits --spawn=same-dir; sleep 10; done'
 ```
 
-3. `tmux capture-pane -p -t <name>` で `Connected` になり、セッション名が表示されたことを確かめてから報告する
+3. 初めてのディレクトリでは、信頼確認（`Trust <ディレクトリ>? [y/N]`）で止まる。`tmux capture-pane -p -t <name>` で画面を確かめ、下の条件を満たす時だけ `tmux send-keys -t <name> y Enter` で答える
+4. `tmux capture-pane -p -t <name>` で `Connected` になり、セッション名が表示されたことを確かめてから報告する
+
+信頼確認に答えてよい条件:
+
+- この流れの中で、workbench のセッション自身が作ったばかりのディレクトリであること
+- 既存のディレクトリや、中身を他所から持ってきたディレクトリ（clone したものなど）では答えない。ユーザーに `tmux attach -t <name>` で答えてもらう
 
 注意:
 
