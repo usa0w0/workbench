@@ -1,0 +1,68 @@
+name: Dashboard
+
+on:
+  schedule:
+    # 日本時間の 6 時台から 24 時台まで、毎時 7 分（定期実行は数十分遅れることがある）
+    - cron: '7 21-23,0-15 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/scripts/dashboard.py
+      - .github/workflows/dashboard.yml
+  # PR では作るところまで確かめる。デプロイはしない
+  pull_request:
+    paths:
+      - .github/scripts/dashboard.py
+      - .github/workflows/dashboard.yml
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # 実装リポジトリは公開なので、標準のトークンで読める
+      - name: Build dashboard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/dashboard.py _site
+
+      - name: Check that every repository was read
+        if: github.event_name == 'pull_request'
+        run: |
+          if grep -q '実装リポジトリを読めなかった' _site/index.html; then
+            echo "::error::読めなかった実装リポジトリがある"
+            exit 1
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
