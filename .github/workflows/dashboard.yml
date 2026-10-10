@@ -11,23 +11,23 @@ on:
     paths:
       - .github/scripts/dashboard.py
       - .github/workflows/dashboard.yml
+  # PR では作るところまで確かめる。デプロイはしない
+  pull_request:
+    paths:
+      - .github/scripts/dashboard.py
+      - .github/workflows/dashboard.yml
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
       issues: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,11 +37,32 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python3 .github/scripts/dashboard.py _site
 
-      - uses: actions/configure-pages@v5
+      - name: Check that every repository was read
+        if: github.event_name == 'pull_request'
+        run: |
+          if grep -q '実装リポジトリを読めなかった' _site/index.html; then
+            echo "::error::読めなかった実装リポジトリがある"
+            exit 1
+          fi
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
 
       - id: deployment
         uses: actions/deploy-pages@v4
