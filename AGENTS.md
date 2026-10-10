@@ -159,7 +159,8 @@ env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh LANG=ja_JP.UTF-8
 
 `building` の issue が指す実装リポジトリの状況を、https://usa0w0.github.io/workbench/ に出す。`.github/workflows/dashboard.yml` が、日本時間の6時台から24時台まで1時間ごとに作り直す。手で作り直す時は `gh workflow run dashboard.yml`。
 
-- 載せるのは、あなた待ち、open の PR（CI と未返信の指摘の数）、進み具合、詰まり、アイデアの在庫
+- 載せるのは、あなた待ち、バーンアップチャート、open の PR（CI と未返信の指摘の数）、直近24時間に終わったもの、詰まり、アイデアの在庫
+- バーンアップチャートは、issue の枚数で数える（ストーリーポイントは振っていない）。横軸は最初の issue の日から、今日を含む週の日曜まで
 - 「あなた待ち」に出るのは、実装リポジトリで `ユーザー待ち` のラベルが付いた open の issue と PR。ユーザーの手が要るもの（動作確認、判断）に実装セッションが付け、済んだら外す
 - 対象のリポジトリは、`building` の issue の「実装リポジトリ」の URL から拾う
 - 読めるのは公開のリポジトリだけ。非公開の実装リポジトリを載せる時は、読み取り用のトークンが要る
