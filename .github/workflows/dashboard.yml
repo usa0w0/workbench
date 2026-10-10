@@ -1,0 +1,47 @@
+name: Dashboard
+
+on:
+  schedule:
+    # 日本時間の 6 時台から 24 時台まで、毎時 7 分（定期実行は数十分遅れることがある）
+    - cron: '7 21-23,0-15 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/scripts/dashboard.py
+      - .github/workflows/dashboard.yml
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # 実装リポジトリは公開なので、標準のトークンで読める
+      - name: Build dashboard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/dashboard.py _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
