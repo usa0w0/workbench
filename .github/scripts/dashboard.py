@@ -22,6 +22,7 @@ STOCK_LABELS = ["idea", "spec", "ready"]
 REPO_QUERY = """
 query($owner: String!, $name: String!) {
   repository(owner: $owner, name: $name) {
+    createdAt
     openIssues: issues(states: OPEN, first: 100, orderBy: {field: CREATED_AT, direction: ASC}) {
       totalCount
       nodes {
@@ -116,7 +117,15 @@ def render_product(product, now):
         return f'<section>{head}<p class="meta">{hub_link}</p><p class="none">実装リポジトリが issue に書かれていない</p></section>'
 
     owner, name = product["repo"]
-    repo = gh("api", "graphql", "-f", f"query={REPO_QUERY}", "-f", f"owner={owner}", "-f", f"name={name}")["data"]["repository"]
+    repo_link = f'<a href="https://github.com/{owner}/{name}">{owner}/{name}</a>'
+    # 1つのリポジトリが読めなくても、ほかの製品と在庫は出す
+    try:
+        repo = gh("api", "graphql", "-f", f"query={REPO_QUERY}", "-f", f"owner={owner}", "-f", f"name={name}")["data"]["repository"]
+    except (subprocess.CalledProcessError, KeyError, TypeError, ValueError) as error:
+        print(f"{owner}/{name} を読めなかった: {getattr(error, 'stderr', None) or error}", file=sys.stderr)
+        repo = None
+    if not repo:
+        return f'<section>{head}<p class="meta">{hub_link} / {repo_link}</p><p class="warn">実装リポジトリを読めなかった</p></section>'
     since = now - timedelta(hours=24)
 
     open_issues = repo["openIssues"]["nodes"]
@@ -138,7 +147,7 @@ def render_product(product, now):
 
     done, remaining = repo["closedIssues"]["totalCount"], repo["openIssues"]["totalCount"]
     total = done + remaining
-    percent = round(done * 100 / total) if total else 0
+    percent = done * 100 // total if total else 0
     merged_recent = [link(p) for p in merged if parse_time(p["mergedAt"]) >= since]
     closed_recent = [link(i) for i in closed if parse_time(i["closedAt"]) >= since]
 
@@ -146,9 +155,11 @@ def render_product(product, now):
     if times:
         days = (now - max(times)).days
         last = f'最後のマージか close: {max(times).astimezone(JST):%m/%d %H:%M}（{days}日前）'
-        stale = days >= STALE_DAYS
     else:
-        last, stale = "マージも close もまだない", False
+        created = parse_time(repo["createdAt"])
+        days = (now - created).days
+        last = f'マージも close もまだない（リポジトリの作成: {created.astimezone(JST):%m/%d %H:%M}、{days}日前）'
+    stale = days >= STALE_DAYS
     stale_note = f'<p class="warn">停滞（{STALE_DAYS}日以上、マージも close もない）</p>' if stale else '<p>停滞なし</p>'
 
     with_pr = {i["number"] for pr in open_prs for i in pr["closingIssuesReferences"]["nodes"]}
@@ -157,7 +168,7 @@ def render_product(product, now):
 
     return f"""<section>
 {head}
-<p class="meta">{hub_link} / <a href="https://github.com/{owner}/{name}">{owner}/{name}</a></p>
+<p class="meta">{hub_link} / {repo_link}</p>
 <h3>あなた待ち（{WAITING_LABEL} のラベル）</h3>
 {item_list(waiting)}
 <h3>open の PR</h3>
