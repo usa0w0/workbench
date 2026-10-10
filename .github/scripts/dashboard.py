@@ -87,7 +87,7 @@ def parse_time(value):
 
 def building_products():
     """building の issue と、その本文の「実装リポジトリ」に書かれたリポジトリを返す。"""
-    issues = gh("issue", "list", "-R", HUB, "--label", "building", "--state", "open",
+    issues = gh("issue", "list", "-R", HUB, "--label", "building", "--state", "open", "--limit", "200",
                 "--json", "number,title,url,body")
     products = []
     for issue in sorted(issues, key=lambda i: i["number"]):
