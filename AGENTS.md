@@ -122,38 +122,55 @@
 3. 下の「実装セッションの立て方」で、そのディレクトリにセッションを立てる
 4. 区画の「実装リポジトリ」に URL を記入し、ラベルを `building` にする
 5. 立てたセッションにメッセージを送り、依頼を引き継ぐ。内容は「workbench の issue #NN を実装して」と、issue の読み方（`gh issue view NN -R usa0w0/workbench --comments`）、Mode
-6. 相手から受け取った旨の返信が来たことを確かめ、セッション名をユーザーに伝える。以後のやり取りは、ユーザーがアプリからそのセッションを開いて行う
+6. 相手が受け取って動き始めたことを確かめ、セッション名をユーザーに伝える。以後のやり取りは、ユーザーが Orca かアプリからそのセッションを開いて行う
 
 実装セッションは、完了条件をすべて満たしたら、その旨と確認方法を issue にコメントする。close と `shipped` はユーザーが行う。
 
 ## 実装セッションの立て方
 
-「〇〇でセッションを立てて」と言われた時も同じ手順で行う。
+実装セッションは Orca で立てる。操作は `orca` の CLI で行い、細かい使い方は `orca-cli` のスキルに従う。「〇〇でセッションを立てて」と言われた時も同じ手順で行う。
 
-1. `tmux ls` と稼働中のプロセスを見て、同じ名前・同じディレクトリのセッションがすでにないか確かめる。あれば立てずに、その旨を伝える
-2. サンドボックスの外で、環境変数を引き継がずに起動する
+1. `orca worktree ps --json` を見て、同じディレクトリで動いているエージェントがすでにないか確かめる。あれば立てずに、その旨を伝える
+2. Orca にそのリポジトリがなければ足す（`orca repo list --json` で確かめる）
 
 ```
-env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh LANG=ja_JP.UTF-8 TERM=xterm-256color \
-  PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
-  tmux new-session -d -s <name> -c "$HOME/dev/<name>" \
-  'while true; do claude remote-control --name <name> --permission-mode acceptEdits --spawn=same-dir; sleep 10; done'
+orca repo add --path "$HOME/dev/<name>" --json
 ```
 
-3. 初めてのディレクトリでは、信頼確認（`Trust <ディレクトリ>? [y/N]`）で止まる。`tmux capture-pane -p -t <name>` で画面を確かめ、下の条件を満たす時だけ `tmux send-keys -t <name> y Enter` で答える
-4. `tmux capture-pane -p -t <name>` で `Connected` になり、セッション名が表示されたことを確かめてから報告する
+3. そのディレクトリにターミナルを作り、Claude を起動する。返ってきた `handle` を、以後のコマンドで使う
+
+```
+orca terminal create --worktree "path:$HOME/dev/<name>" --title <name> \
+  --command "claude --permission-mode acceptEdits --remote-control <name>" --json
+```
+
+4. 入力を受け付ける状態になるのを待つ。結果の `wait.satisfied` が `true` になるまで、何も送らない。起動中の画面に送った文字は失われる
+
+```
+orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 60000 --json
+```
+
+5. `orca terminal read --terminal <handle> --json` で画面を確かめる。初めてのディレクトリでは、信頼確認で止まる。下の条件を満たす時だけ、画面の選択肢に従って `orca terminal send` で答える
+6. 依頼を送る。結果の `stages` に `turn_started` があれば、相手が受け取って動き始めている
+
+```
+orca terminal send --terminal <handle> --text "<依頼>" --enter --wait-submit 15 --json
+```
+
+7. 相手の返信は、`orca terminal wait --for tui-idle` で待ってから `orca terminal read` で読む
 
 信頼確認に答えてよい条件:
 
 - この流れの中で、workbench のセッション自身が作ったばかりのディレクトリであること
-- 既存のディレクトリや、中身を他所から持ってきたディレクトリ（clone したものなど）では答えない。ユーザーに `tmux attach -t <name>` で答えてもらう
+- 既存のディレクトリや、中身を他所から持ってきたディレクトリ（clone したものなど）では答えない。ユーザーに Orca の画面で答えてもらう
 
 注意:
 
-- 稼働中のセッションは、頼まれない限り止めない
-- メッセージの送信が成功しても、相手が読んだとは限らない。相手の権限モードによっては、ユーザーの承認待ちで保留される。返信が来ない時は、その旨をユーザーに伝える
-- 止めた直後に同じディレクトリで立て直すと、数分のあいだ「already served」で弾かれる。再試行ループがあるので待てば立ち上がる
-- 起動のたびに `Session failed` が出て一覧に現れない時は、サーバー側で終了済みのセッションを復元しようとしている。`~/.claude/projects/<ディレクトリ名>/bridge-pointer.json` を退避して立て直す
+- 稼働中のセッションは、頼まれない限り止めない。ターミナルを閉じる（`orca terminal close`）のは、自分がこの流れで作ったものだけ
+- 実装セッションは、リポジトリ本体のディレクトリで feature ブランチを切って作業する。`orca worktree create`（別のチェックアウトを作る）は使わない
+- 送信が受け付けられても（`accepted: true`）、相手が動き始めたとは限らない。`turn_started` が出ない時は、同じ文を送り直さずに画面を読む。それでも分からない時は、その旨をユーザーに伝える
+- 動いている実装セッションへの連絡も、同じ `orca terminal send` で行う。宛先の `handle` は `orca terminal list --worktree "path:$HOME/dev/<name>" --json` で調べる
+- `handle` は Orca を再起動すると変わる。`terminal_handle_stale` が出たら、調べ直す
 
 ## ダッシュボード
 
