@@ -157,7 +157,7 @@ env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh LANG=ja_JP.UTF-8
 
 ## ダッシュボード
 
-`building` の issue が指す実装リポジトリの状況を、https://usa0w0.github.io/workbench/ に出す。`.github/workflows/dashboard.yml` が、日本時間の6時台から24時台まで1時間ごとに作り直す。手で作り直す時は `gh workflow run dashboard.yml`。
+`building` の issue が指す実装リポジトリの状況を、https://usa0w0.github.io/workbench/ に出す。`.github/workflows/dashboard.yml` が、日本時間の6時台から24時台まで15分ごとに作り直す。GitHub は定期実行を遅らせたり飛ばしたりするので、実際の間隔はこれより空く（ページの先頭に更新時刻が出る）。手で作り直す時は `gh workflow run dashboard.yml`。
 
 - 載せるのは、あなた待ち、バーンアップチャート、open の PR（CI と未返信の指摘の数）、直近24時間に終わったもの、詰まり、アイデアの在庫
 - バーンアップチャートは、issue の枚数で数える（ストーリーポイントは振っていない）。横軸は最初の issue の日から、今日を含む週の日曜まで
