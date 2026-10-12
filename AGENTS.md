@@ -167,7 +167,9 @@ orca terminal send --terminal <handle> --text "<依頼>" --enter --wait-submit 1
 注意:
 
 - 稼働中のセッションは、頼まれない限り止めない。ターミナルを閉じる（`orca terminal close`）のは、自分がこの流れで作ったものだけ
-- 実装セッションは、リポジトリ本体のディレクトリで feature ブランチを切って作業する。`orca worktree create`（別のチェックアウトを作る）は使わない
+- workbench が立てる実装セッションは、リポジトリ本体のディレクトリで動かす。workbench のセッションは `orca worktree create`（別のチェックアウトを作る）を使わない
+- 実装をサブセッションに分ける時は、実装セッションが `orca worktree create --agent claude --prompt "<依頼>"` で、PR ごとに別のチェックアウトとエージェントを立てる。実装セッションは進行とユーザーとの対話を受け持ち、サブセッションの様子は `orca worktree ps` と `orca terminal read` で見て、指示は `orca terminal send` で送る
+- この立て方のセッションでは、PR の通知を登録する道具（`subscribe_pr_activity`）とサブセッションの道具（`claude-code-remote`）は使えない。どちらも、待ち受け型（`claude remote-control`）が生成したセッションにだけ付く。待ち受け型は Orca の画面から入力できないので使わない。PR の動きは、実装セッションが GitHub を定期的に見に行って拾う
 - 送信が受け付けられても（`accepted: true`）、相手が動き始めたとは限らない。`turn_started` が出ない時は、同じ文を送り直さずに画面を読む。それでも分からない時は、その旨をユーザーに伝える
 - 動いている実装セッションへの連絡も、同じ `orca terminal send` で行う。宛先の `handle` は `orca terminal list --worktree "path:$HOME/dev/<name>" --json` で調べる
 - `handle` は Orca を再起動すると変わる。`terminal_handle_stale` が出たら、調べ直す
